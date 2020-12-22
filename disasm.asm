@@ -579,6 +579,7 @@ proc analyzeEA
 	jne wordPtr
 	fputstr opBytePtr
 	jmp prefixCheck
+	
 	wordPtr:
 	fputstr opWordPtr
 	prefixCheck:
@@ -603,7 +604,7 @@ proc analyzeEA
 		cmp md, 00b
 		jne notException
 		call putHexWord
-		jmp m1
+		jmp endAnalyze
 		notException:
 		inc bx
 		fputstr [bx]
@@ -683,14 +684,11 @@ proc getModRegRm
 endp
 
 proc getDW
-	push dx
-	rcr dh, 1
-	mov w, 0
-	adc w, 0
-	rcr dh, 1
-	mov d, 0
-	adc d, 0
-	pop dx
+	mov w, dh
+	and w, 00000001b
+	mov d, dh
+	shr d, 1
+	and d, 00000001b
 	ret
 endp
 
@@ -828,6 +826,7 @@ proc fPutChar
 	inc si
 	call checkIfFull
 	ret
+	
 	writeToInstructionsBuff:
 	push bx
 	mov bx, instructionBuffIndex
@@ -858,7 +857,7 @@ proc checkIfFull
 	call writeBufferToFile
 	xor si, si
 	notFull:
-		ret
+	ret
 endp
 
 errorMsg:
